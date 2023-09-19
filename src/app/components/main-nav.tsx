@@ -6,7 +6,7 @@ import { homeConfig } from "@/config/site"
 
 import { Icons } from "@/components/icons"
 import { cn } from "@/util/utils"
-import { NavItem } from "../../../types/nav"
+import { NavItem } from "../../types/nav"
 
 interface MainNavProps {
   items?: NavItem[]
