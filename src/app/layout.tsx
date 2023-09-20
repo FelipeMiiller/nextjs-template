@@ -1,13 +1,13 @@
 import "@/styles/globals.css"
+
 import { Metadata } from "next"
-import { homeConfig } from "@/config/site"
-
-
-import { ThemeProvider } from "@/components/theme-provider"
-import { fontSans } from "@/styles/fonts"
+import { TailwindIndicator, ThemeProvider } from "@/components"
 import { cn } from "@/util/utils"
-import { TailwindIndicator } from "@/components/tailwind-indicator"
-import { SiteHeader } from "./components/header"
+
+import { homeConfig } from "@/config/site"
+import { fontSans } from "@/styles/fonts"
+
+import { Header } from "./components"
 
 export const metadata: Metadata = {
   title: {
@@ -43,7 +43,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <div className="relative flex-1 flex min-h-screen flex-col">
-              <SiteHeader />
+              <Header />
               <div className="flex flex-1">{children}</div>
             </div>
             <TailwindIndicator />

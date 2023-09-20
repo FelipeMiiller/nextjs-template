@@ -1,14 +1,5 @@
-import {
-  GitHubLogoIcon,
-  MoonIcon,
-  SunIcon,
-} from '@radix-ui/react-icons'
-import { IconProps } from '@radix-ui/react-icons/dist/types'
-import React from 'react'
-
-
-
-
+import React from "react"
+import { GitHubLogoIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons"
 
 
 export const Icons = {
@@ -23,5 +14,4 @@ export const Icons = {
       />
     </svg>
   ),
- 
 }

@@ -1,9 +1,7 @@
 "use client"
 
 import * as React from "react"
-
-import {MoonIcon, SunIcon}  from '@radix-ui/react-icons'
-
+import { MoonIcon, SunIcon } from "@radix-ui/react-icons"
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
@@ -12,7 +10,8 @@ export function ThemeToggle() {
   const { setTheme, theme } = useTheme()
 
   return (
-    <Button data-testid="theme-toggle"
+    <Button
+      data-testid="theme-toggle"
       variant="ghost"
       size="icon"
       name="theme-toggle"
