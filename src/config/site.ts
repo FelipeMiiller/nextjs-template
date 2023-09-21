@@ -5,8 +5,8 @@ export const homeConfig = {
   description: "Template for Next.js 13 with Tailwind CSS.",
   mainNav: [
     {
-      title: "Home",
-      href: "https://github.com/FelipeMiiller",
+      title: "Dashboard",
+      href: "/dashboard",
     },
   ],
   links: {

@@ -7,8 +7,6 @@ import { cn } from "@/util/utils"
 import { homeConfig } from "@/config/site"
 import { fontSans } from "@/styles/fonts"
 
-import { Header } from "./components"
-
 export const metadata: Metadata = {
   title: {
     default: homeConfig.name,
@@ -43,8 +41,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
         >
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
             <div className="relative flex-1 flex min-h-screen flex-col">
-              <Header />
-              <div className="flex flex-1">{children}</div>
+              {children}
             </div>
             <TailwindIndicator />
           </ThemeProvider>
