@@ -1,7 +1,6 @@
 import React from "react"
 import { GitHubLogoIcon, MoonIcon, SunIcon } from "@radix-ui/react-icons"
 
-
 export const Icons = {
   sun: SunIcon,
   moon: MoonIcon,

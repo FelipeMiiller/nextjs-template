@@ -1,12 +1,15 @@
 import "@testing-library/jest-dom"
+
 import React from "react"
 import { render, screen } from "@testing-library/react"
 import { useTheme } from "next-themes"
+
 import {
   fireEvent as fireEventProvider,
   render as renderProvider,
 } from "@/components/__test__/test-utils"
-import { ThemeToggle } from "./theme-toggle"
+
+import { ThemeToggle } from "../theme-toggle"
 
 // test for  theme toggle  https://github.com/pacocoursey/next-themes/issues/21
 
