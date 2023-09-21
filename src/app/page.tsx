@@ -38,7 +38,7 @@ export default function IndexPage() {
                   <span className="sr-only">GitHub</span>
                 </div>
               </Link>
-              <ThemeToggle/>
+              <ThemeToggle />
             </nav>
           </div>
         </section>
