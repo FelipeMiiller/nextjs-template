@@ -1,7 +1,5 @@
 "use client"
 
-import { ThemeToggle } from "@/components"
-
 import { AvatarUi, ButtonUi, DropdownMenuUi } from "@/components/ui"
 
 export function UserNav() {
@@ -12,8 +10,8 @@ export function UserNav() {
           variant="ghost"
           className="relative h-8 w-8 rounded-full"
         >
-          <AvatarUi.Root className="h-8 w-8">
-            <AvatarUi.Image src="/avatars/01.png" alt="@shadcn" />
+          <AvatarUi.Root className="h-9 w-9">
+            <AvatarUi.Image src="/avatars/03.png" alt="@shadcn" />
             <AvatarUi.Fallback>SC</AvatarUi.Fallback>
           </AvatarUi.Root>
         </ButtonUi.Button>
@@ -41,9 +39,7 @@ export function UserNav() {
             Settings
             <DropdownMenuUi.Shortcut>⌘S</DropdownMenuUi.Shortcut>
           </DropdownMenuUi.Item>
-          <DropdownMenuUi.Item>
-            <ThemeToggle text="Theme" />
-          </DropdownMenuUi.Item>
+          <DropdownMenuUi.Item>New Team</DropdownMenuUi.Item>
         </DropdownMenuUi.Group>
         <DropdownMenuUi.Separator />
         <DropdownMenuUi.Item>

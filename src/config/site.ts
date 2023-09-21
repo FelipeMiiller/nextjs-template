@@ -8,6 +8,10 @@ export const homeConfig = {
       title: "Dashboard",
       href: "/dashboard",
     },
+    {
+      title: "Tasks",
+      href: "/tasks",
+    },
   ],
   links: {
     github: "https://github.com/FelipeMiiller/nextjs-template",
