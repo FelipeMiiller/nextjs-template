@@ -64,7 +64,7 @@ export function DataTable<TData, TValue>({
     <div className="space-y-4">
       <DataTableToolbar table={table} />
       <div className="rounded-md border">
-        <TableUi.root>
+        <TableUi.Root>
           <TableUi.Header>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableUi.Row key={headerGroup.id}>
@@ -111,7 +111,7 @@ export function DataTable<TData, TValue>({
               </TableUi.Row>
             )}
           </TableUi.Body>
-        </TableUi.root>
+        </TableUi.Root>
       </div>
       <DataTablePagination table={table} />
     </div>
