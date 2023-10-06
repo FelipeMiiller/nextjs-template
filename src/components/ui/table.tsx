@@ -116,7 +116,7 @@ export {
 }
 
 export const TableUi = {
-  root: Table,
+  Root: Table,
   Header: TableHeader,
   Body: TableBody,
   Footer: TableFooter,

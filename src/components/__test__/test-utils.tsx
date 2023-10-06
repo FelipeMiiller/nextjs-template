@@ -9,6 +9,7 @@ interface TestProviderOptions {
 
 interface CustomOptions extends RenderOptions, TestProviderOptions {}
 
+/* eslint-disable */
 const createTestProviders =
   ({ theme = "dark" }: TestProviderOptions): React.FC =>
   ({ children }: React.PropsWithChildren) => (

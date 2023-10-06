@@ -1,5 +1,7 @@
-dist/*
-.cache
+.next
 public
 node_modules
-*.esm.js
+yarn.lock
+package-lock.json
+**/*.test.js
+coverage
