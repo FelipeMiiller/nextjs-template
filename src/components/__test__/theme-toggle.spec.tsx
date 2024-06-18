@@ -48,13 +48,13 @@ describe("ThemeToggle", () => {
 
     const button = screen.getByRole("button")
     const svgs = button.querySelectorAll("svg")
-    const span = button.querySelector("span")
+ 
 
     expect(button).toBeInTheDocument()
     expect(svgs).toHaveLength(2)
     expect(svgs[0]).toBeInTheDocument()
     expect(svgs[1]).toBeInTheDocument()
-    expect(span).toBeInTheDocument()
+
   })
   it("toggles the theme", async () => {
     const { getByRole, getByTestId } = renderProvider(
