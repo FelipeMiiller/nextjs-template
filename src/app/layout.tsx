@@ -1,52 +1,50 @@
+/* eslint-disable react/no-unknown-property */
 import "@/styles/globals.css"
 
-import { Metadata } from "next"
-import { TailwindIndicator, ThemeProvider } from "@/components"
-import { cn } from "@/util/utils"
+import React from "react"
+import type { Metadata, Viewport } from "next"
+import { fontSans, geistMono, geistSans } from "@/assets/fonts"
+import { Analytics, TailwindIndicator, ThemeProvider } from "@/components"
+import { siteConfig } from "@/config"
+import { cn } from "@/utils/utils"
 
-import { homeConfig } from "@/config/site"
-import { fontSans } from "@/styles/fonts"
+import { Toaster } from "@/components/ui/toaster"
 
-export const metadata: Metadata = {
-  title: {
-    default: homeConfig.name,
-    template: `%s - ${homeConfig.name}`,
-  },
-  description: homeConfig.description,
-  themeColor: [
-    { media: "(prefers-color-scheme: light)", color: "white" },
-    { media: "(prefers-color-scheme: dark)", color: "black" },
-  ],
-  icons: {
-    icon: "/favicon.ico",
-    shortcut: "/favicon-16x16.png",
-    apple: "/apple-touch-icon.png",
-  },
-}
+export const metadata: Metadata = siteConfig.metadata
+export const viewport: Viewport = siteConfig.viewport
 
-interface RootLayoutProps {
+export default function RootLayout({
+  children,
+}: Readonly<{
   children: React.ReactNode
-}
-
-export default function RootLayout({ children }: RootLayoutProps) {
+}>) {
   return (
-    <>
-      <html lang="en" suppressHydrationWarning>
-        <head />
-        <body
-          className={cn(
-            "min-h-screen  flex   bg-background font-sans antialiased",
-            fontSans.variable
-          )}
+    <html lang={siteConfig.language} suppressHydrationWarning>
+      <body
+        className={cn(
+          " antialiased",
+          fontSans.variable,
+          geistSans.variable,
+          geistMono.variable
+        )}
+      >
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
         >
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-            <div className="relative flex-1 flex min-h-screen flex-col">
+          <div vaul-drawer-wrapper="">
+            <div className=" flex-1 flex min-h-screen flex-col  bg-background font-sans">
               {children}
             </div>
-            <TailwindIndicator />
-          </ThemeProvider>
-        </body>
-      </html>
-    </>
+          </div>
+          <TailwindIndicator />
+
+          <Analytics />
+          <Toaster />
+        </ThemeProvider>
+      </body>
+    </html>
   )
 }

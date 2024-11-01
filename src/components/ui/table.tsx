@@ -1,5 +1,5 @@
 import * as React from "react"
-import { cn } from "@/util/utils"
+import { cn } from "@/utils/utils"
 
 const Table = React.forwardRef<
   HTMLTableElement,
@@ -41,7 +41,10 @@ const TableFooter = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <tfoot
     ref={ref}
-    className={cn("bg-primary font-medium text-primary-foreground", className)}
+    className={cn(
+      "border-t bg-muted/50 font-medium [&>tr]:last:border-b-0",
+      className
+    )}
     {...props}
   />
 ))
@@ -113,15 +116,4 @@ export {
   TableRow,
   TableCell,
   TableCaption,
-}
-
-export const TableUi = {
-  Root: Table,
-  Header: TableHeader,
-  Body: TableBody,
-  Footer: TableFooter,
-  Head: TableHead,
-  Row: TableRow,
-  Cell: TableCell,
-  Caption: TableCaption,
 }
