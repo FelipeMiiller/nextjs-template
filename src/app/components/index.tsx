@@ -1,4 +1,1 @@
-import { Header } from "./header"
-import { MainNav } from "./main-nav"
-
-export { Header, MainNav }
+export * from "./header"
