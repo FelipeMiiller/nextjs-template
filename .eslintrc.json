@@ -3,14 +3,16 @@
   "root": true,
   "env": {
     "browser": true,
-    "node": true
+    "node": true,
+    "jest/globals": true
   },
   "extends": [
     "plugin:prettier/recommended",
     "plugin:react/recommended",
-    "eslint:recommended"
+    "eslint:recommended",
+    "plugin:@next/next/recommended"
   ],
-  "plugins": ["react-hooks", "prettier", "react", "import"],
+  "plugins": ["react-hooks", "prettier", "react", "import", "jest"],
 
   "parserOptions": {
     "ecmaFeatures": {
@@ -25,9 +27,14 @@
         "varsIgnorePattern": "React"
       }
     ],
+    "jest/no-disabled-tests": "warn",
+    "jest/no-focused-tests": "error",
+    "jest/no-identical-title": "error",
+    "jest/prefer-to-have-length": "warn",
+    "jest/valid-expect": "error",
     "react/jsx-uses-react": "error",
     "react/jsx-uses-vars": "error",
-  
+
     "react/require-default-props": "off",
     "react/prop-types": "off", // If you're using TypeScript, prop-types are not needed
     "react/react-in-jsx-scope": "off", // Not needed in Next.js
