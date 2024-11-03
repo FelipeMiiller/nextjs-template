@@ -4,13 +4,14 @@ import "@/styles/globals.css"
 import React from "react"
 import type { Metadata, Viewport } from "next"
 import { fontSans, geistMono, geistSans } from "@/assets/fonts"
-import { Analytics, TailwindIndicator, ThemeProvider } from "@/components"
+import { TailwindIndicator, ThemeProvider } from "@/components"
 import { siteConfig } from "@/config"
 import { cn } from "@/utils/utils"
 
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/sonner"
 
 export const metadata: Metadata = siteConfig.metadata
+
 export const viewport: Viewport = siteConfig.viewport
 
 export default function RootLayout({
@@ -41,7 +42,6 @@ export default function RootLayout({
           </div>
           <TailwindIndicator />
 
-          <Analytics />
           <Toaster />
         </ThemeProvider>
       </body>
