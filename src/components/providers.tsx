@@ -1,15 +1,20 @@
-"use client"
+'use client';
+import { ThemeProvider as NextThemesProvider, type ThemeProviderProps } from 'next-themes';
+import * as React from 'react';
+import { TailwindIndicator } from './tailwind-indicator';
+import { Toaster } from './ui/sonner';
+import ProviderQuery from 'src/services/reactQuery/provider';
+import VLibras from './VLibras';
 
-import * as React from "react"
-import { ThemeProvider as NextThemesProvider } from "next-themes"
-import { ThemeProviderProps } from "next-themes/dist/types"
-
-import { TooltipProvider } from "./ui/tooltip"
-
-export function ThemeProvider({ children, ...props }: ThemeProviderProps) {
+export default function Providers({ children, ...props }: ThemeProviderProps) {
   return (
     <NextThemesProvider {...props}>
-      <TooltipProvider delayDuration={0}>{children}</TooltipProvider>
+      <ProviderQuery>
+        {children}
+     <Toaster richColors />
+        <TailwindIndicator />
+        <VLibras />
+      </ProviderQuery>
     </NextThemesProvider>
-  )
+  );
 }

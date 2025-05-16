@@ -1,40 +1,36 @@
 {
-  "$schema": "https://json.schemastore.org/tsconfig",
   "compilerOptions": {
-    "target": "es6",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "target": "ES2017",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "noUnusedLocals": false,
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-
-    "allowSyntheticDefaultImports": true,
     "plugins": [
       {
         "name": "next"
       }
     ],
-
-    "paths": {
-      "@/*": ["./src/*"],
-      "@/public/*": ["./public/*"]
-    },
-    "types": ["node", "jest", "@testing-library/jest-dom"],
-    "typeRoots": ["./node_modules/@types"]
+    "baseUrl": "./"
   },
   "include": [
     "next-env.d.ts",
-    "./src/**/*.tsx",
-    "./src/**/*.ts",
+    "**/*.ts",
+    "**/*.tsx",
     ".next/types/**/*.ts"
   ],
-  "exclude": ["node_modules", "**/*.spec.ts", "**/*.test.ts"]
+  "exclude": [
+    "node_modules"
+  ]
 }
