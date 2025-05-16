@@ -1,50 +1,30 @@
-/* eslint-disable react/no-unknown-property */
-import "@/styles/globals.css"
+import { Geist, Geist_Mono } from 'next/font/google';
+import './globals.css';
+import Providers from 'src/components/providers';
 
-import React from "react"
-import type { Metadata, Viewport } from "next"
-import { fontSans, geistMono, geistSans } from "@/assets/fonts"
-import { TailwindIndicator, ThemeProvider } from "@/components"
-import { siteConfig } from "@/config"
-import { cn } from "@/utils/utils"
+const geistSans = Geist({
+  variable: '--font-geist-sans',
+  subsets: ['latin'],
+});
 
-import { Toaster } from "@/components/ui/sonner"
-
-export const metadata: Metadata = siteConfig.metadata
-
-export const viewport: Viewport = siteConfig.viewport
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+});
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode
+  children: React.ReactNode;
 }>) {
   return (
-    <html lang={siteConfig.language} suppressHydrationWarning>
-      <body
-        className={cn(
-          " antialiased",
-          fontSans.variable,
-          geistSans.variable,
-          geistMono.variable
-        )}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <div vaul-drawer-wrapper="">
-            <div className=" flex-1 flex min-h-screen flex-col  bg-background font-sans">
-              {children}
-            </div>
-          </div>
-          <TailwindIndicator />
-
-          <Toaster />
-        </ThemeProvider>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <Providers attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+          {children}
+          
+        </Providers>
       </body>
     </html>
-  )
+  );
 }
