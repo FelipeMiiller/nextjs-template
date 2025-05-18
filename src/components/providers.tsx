@@ -11,7 +11,7 @@ export default function Providers({ children, ...props }: ThemeProviderProps) {
     <NextThemesProvider {...props}>
       <ProviderQuery>
         {children}
-     <Toaster richColors />
+        <Toaster richColors />
         <TailwindIndicator />
         <VLibras />
       </ProviderQuery>

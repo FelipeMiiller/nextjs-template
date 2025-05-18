@@ -3,7 +3,7 @@ import axios, { AxiosError, AxiosInstance, AxiosRequestConfig, AxiosResponse } f
 
 import { toast } from 'sonner';
 import { hrefs } from 'src/config/hrefs';
-import { Cookie_Keys } from 'src/lib/utils/constants/cookies-keys';
+import { Cookie_Keys } from 'src/lib/constants/cookies-keys';
 import { Session, User } from 'src/types/auth';
 import { ZodType, ZodError, z } from 'zod';
 import { UserSchema } from './schemas';

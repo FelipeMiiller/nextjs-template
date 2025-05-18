@@ -1,11 +1,15 @@
 import { GalleryVerticalEnd } from 'lucide-react';
-import { LoginForm } from 'src/components/login-form';
 import { ReactLogo } from 'src/components/react-logo';
-import { metadataConfig } from 'src/config/metadata';
+import { getDictionary } from 'src/services/i18n/get-dictionary';
+import { Locale } from 'src/types/i18n-types';
+import { SignUpForm } from './components/signup-form';
+import { Dictionary } from 'src/types/i18n-types';
 
-export const metadata = metadataConfig;
+export default async function SignUpPage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = await params;
+  const dictionary = await getDictionary(lang);
+  const { common, auth } = dictionary as Dictionary;
 
-export default function HomePage() {
   return (
     <div data-testid="home-page" className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
@@ -14,12 +18,12 @@ export default function HomePage() {
             <div className="flex justify-center items-center w-6 h-6 rounded-md bg-primary text-primary-foreground">
               <GalleryVerticalEnd className="size-4" />
             </div>
-            Acme Inc.
+            {common.companyName}
           </a>
         </div>
         <div className="flex flex-1 justify-center items-center">
           <div className="w-full max-w-xs">
-            <LoginForm />
+            <SignUpForm dictionary={auth.signUp} />
           </div>
         </div>
       </div>
@@ -30,10 +34,10 @@ export default function HomePage() {
             <ReactLogo size={128} />
           </span>
           <h1 data-testid="title" className="text-2xl font-bold">
-            Bem-vindo! Faça login para continuar.
+            {auth.signUp.title}
           </h1>
           <span data-testid="subtitle" className="text-sm text-muted-foreground">
-            Faça login para continuar.
+            {auth.signUp.subtitle}
           </span>
         </div>
       </div>

@@ -171,10 +171,10 @@ const HTTP_STATUS = {
     constant: 'PRECONDITION_FAILED',
     reasonPhrase: 'Precondition Failed',
   },
-  REQUEST_TOO_LONG: {
+  CONTENT_TOO_LARGE: {
     code: 413,
-    constant: 'REQUEST_TOO_LONG',
-    reasonPhrase: 'Request Entity Too Large',
+    constant: 'CONTENT_TOO_LARGE',
+    reasonPhrase: 'Content Too Large',
   },
   REQUEST_URI_TOO_LONG: {
     code: 414,

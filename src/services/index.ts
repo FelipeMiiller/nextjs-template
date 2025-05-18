@@ -1,3 +1,3 @@
-import { fetchWrapper } from "./fetch"
+import { fetchWrapper } from './fetch';
 
-export { fetchWrapper }
+export { fetchWrapper };

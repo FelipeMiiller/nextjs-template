@@ -6,4 +6,7 @@ export const hrefs = {
     forgotPassword: '/auth/forgot-password',
     resetPassword: '/auth/reset-password',
   },
+  interface: {
+    index: '/interface',
+  },
 };

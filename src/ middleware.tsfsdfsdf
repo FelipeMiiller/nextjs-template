@@ -1,0 +1,50 @@
+import { NextResponse } from 'next/server';
+import type { NextRequest } from 'next/server';
+
+import { getSessionToken, getSession, updateToken, deleteSession } from './actions/session.actions';
+import { hrefs } from './config/hrefs';
+
+export async function middleware(request: NextRequest) {
+  const pathname = request.nextUrl.pathname;
+
+  // Primeiro verifica a autenticação para rotas de interface
+  if (pathname.includes('/interface')) {
+    const sessionToken = await getSessionToken();
+    if (!sessionToken || !sessionToken.access.refreshToken) {
+      await deleteSession();
+      return NextResponse.redirect(new URL(hrefs.auth.signIn, request.nextUrl.origin));
+    }
+
+    const session = await getSession();
+    if (!session || !session.access.accessToken) {
+      const updatedSession = await updateToken(sessionToken.access.refreshToken);
+      if (!updatedSession) {
+        await deleteSession();
+        return NextResponse.redirect(new URL(hrefs.auth.signIn, request.nextUrl.origin));
+      }
+    }
+    // Se a autenticação for bem-sucedida, continua com a verificação de localização
+  }
+
+  // Evita redirecionamento em rotas já localizadas
+  if (pathname.startsWith('/pt') || pathname.startsWith('/en')) {
+    return NextResponse.next();
+  }
+
+  // Obtém o idioma preferido do navegador
+  const acceptLanguage = request.headers.get('accept-language');
+  const preferredLanguage = acceptLanguage?.split(',')[0].split('-')[0];
+
+  // Define o idioma de redirecionamento com base no idioma preferido
+  let locale = 'pt'; // Idioma padrão
+  if (preferredLanguage === 'en') {
+    locale = 'en';
+  }
+
+  // Redireciona para a rota localizada
+  return NextResponse.redirect(new URL(`/${locale}${pathname}`, request.url));
+}
+
+export const config = {
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
+};
