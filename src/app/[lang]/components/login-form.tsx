@@ -1,13 +1,13 @@
 import { cn } from 'src/lib/utils';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Button } from './ui/button';
+import { Input } from 'src/components/ui/input';
+import { Label } from 'src/components/ui/label';
+import { Button } from 'src/components/ui/button';
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<'form'>) {
   return (
     <form className={cn('flex flex-col gap-6', className)} {...props}>
       <div className="flex flex-col gap-2 items-center text-center">
-        <h1 className="text-2xl font-bold">Login to your account</h1>
+        <h1 className="text-2xl font-bold"></h1>
         <p className="text-sm text-balance text-muted-foreground">
           Enter your email below to login to your account
         </p>
