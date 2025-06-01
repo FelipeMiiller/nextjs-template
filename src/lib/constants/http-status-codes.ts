@@ -1,24 +1,28 @@
-const HTTP_STATUS = {
+const HttpStatus = {
   // 1xx Informational
   CONTINUE: {
     code: 100,
-    constant: 'CONTINUE',
-    reasonPhrase: 'Continue',
+    messages: {
+      CONTINUE: 'Continue',
+    },
   },
   SWITCHING_PROTOCOLS: {
     code: 101,
-    constant: 'SWITCHING_PROTOCOLS',
-    reasonPhrase: 'Switching Protocols',
+    messages: {
+      SWITCHING_PROTOCOLS: 'Switching protocols',
+    },
   },
   PROCESSING: {
     code: 102,
-    constant: 'PROCESSING',
-    reasonPhrase: 'Processing',
+    messages: {
+      PROCESSING: 'Processing',
+    },
   },
   EARLY_HINTS: {
     code: 103,
-    constant: 'EARLY_HINTS',
-    reasonPhrase: 'Early Hints',
+    messages: {
+      EARLY_HINTS: 'Early hints',
+    },
   },
 
   // 2xx Success
@@ -29,275 +33,346 @@ const HTTP_STATUS = {
   },
   CREATED: {
     code: 201,
-    constant: 'CREATED',
-    reasonPhrase: 'Created',
+    messages: {
+      CREATED: 'Created',
+    },
   },
   ACCEPTED: {
     code: 202,
-    constant: 'ACCEPTED',
-    reasonPhrase: 'Accepted',
+    messages: {
+      ACCEPTED: 'Accepted',
+    },
   },
   NON_AUTHORITATIVE_INFORMATION: {
     code: 203,
-    constant: 'NON_AUTHORITATIVE_INFORMATION',
-    reasonPhrase: 'Non Authoritative Information',
+    messages: {
+      NON_AUTHORITATIVE_INFORMATION: 'Non authoritative information',
+    },
   },
   NO_CONTENT: {
     code: 204,
-    constant: 'NO_CONTENT',
-    reasonPhrase: 'No Content',
+    messages: {
+      NO_CONTENT: 'No content',
+    },
   },
   RESET_CONTENT: {
     code: 205,
-    constant: 'RESET_CONTENT',
-    reasonPhrase: 'Reset Content',
+    messages: {
+      RESET_CONTENT: 'Reset content',
+    },
   },
   PARTIAL_CONTENT: {
     code: 206,
-    constant: 'PARTIAL_CONTENT',
-    reasonPhrase: 'Partial Content',
+    messages: {
+      PARTIAL_CONTENT: 'Partial content',
+    },
   },
   MULTI_STATUS: {
     code: 207,
-    constant: 'MULTI_STATUS',
-    reasonPhrase: 'Multi-Status',
+    messages: {
+      MULTI_STATUS: 'Multi-status',
+    },
   },
 
   // 3xx Redirection
   MULTIPLE_CHOICES: {
     code: 300,
-    constant: 'MULTIPLE_CHOICES',
-    reasonPhrase: 'Multiple Choices',
+    messages: {
+      MULTIPLE_CHOICES: 'Multiple choices',
+    },
   },
   MOVED_PERMANENTLY: {
     code: 301,
-    constant: 'MOVED_PERMANENTLY',
-    reasonPhrase: 'Moved Permanently',
+    messages: {
+      MOVED_PERMANENTLY: 'Moved permanently',
+    },
   },
   MOVED_TEMPORARILY: {
     code: 302,
-    constant: 'MOVED_TEMPORARILY',
-    reasonPhrase: 'Moved Temporarily',
+    messages: {
+      MOVED_TEMPORARILY: 'Moved temporarily',
+    },
   },
   SEE_OTHER: {
     code: 303,
-    constant: 'SEE_OTHER',
-    reasonPhrase: 'See Other',
+    messages: {
+      SEE_OTHER: 'See other',
+    },
   },
   NOT_MODIFIED: {
     code: 304,
-    constant: 'NOT_MODIFIED',
-    reasonPhrase: 'Not Modified',
+    messages: {
+      NOT_MODIFIED: 'Not modified',
+    },
   },
   USE_PROXY: {
     code: 305,
-    constant: 'USE_PROXY',
-    reasonPhrase: 'Use Proxy',
+    messages: {
+      USE_PROXY: 'Use proxy',
+    },
   },
   TEMPORARY_REDIRECT: {
     code: 307,
-    constant: 'TEMPORARY_REDIRECT',
-    reasonPhrase: 'Temporary Redirect',
+    messages: {
+      TEMPORARY_REDIRECT: 'Temporary redirect',
+    },
   },
   PERMANENT_REDIRECT: {
     code: 308,
-    constant: 'PERMANENT_REDIRECT',
-    reasonPhrase: 'Permanent Redirect',
+    messages: {
+      PERMANENT_REDIRECT: 'Permanent redirect',
+    },
   },
 
   // 4xx Client Error
   BAD_REQUEST: {
     code: 400,
-    constant: 'BAD_REQUEST',
-    reasonPhrase: 'Bad Request',
+
+    messages: {
+      BAD_REQUEST: 'Invalid request',
+      VALIDATION_ERROR: 'Validation error',
+      INVALID_INPUT: 'Invalid input',
+      REQUIRED_FIELD: 'This field is required',
+      INVALID_EMAIL: 'Invalid email format',
+      PASSWORD_TOO_SHORT: 'Password must be at least 8 characters',
+      PASSWORD_MISMATCH: 'Passwords do not match',
+    },
   },
   UNAUTHORIZED: {
     code: 401,
-    constant: 'UNAUTHORIZED',
-    reasonPhrase: 'Unauthorized',
+
+    messages: {
+      UNAUTHORIZED: 'Unauthorized',
+      INVALID_SESSION: 'Invalid or expired session',
+      INVALID_ACCESS_TOKEN: 'Invalid access token',
+      INVALID_REFRESH_TOKEN: 'Invalid refresh token',
+      TOKEN_EXPIRED: 'Token expired',
+      TOKEN_REFRESH_FAILED: 'Failed to refresh token',
+      INVALID_USER_ID: 'Invalid user ID in token',
+      INVALID_USER_DATA: 'Invalid user data in token',
+    },
   },
   PAYMENT_REQUIRED: {
     code: 402,
-    constant: 'PAYMENT_REQUIRED',
-    reasonPhrase: 'Payment Required',
+
+    messages: {
+      PAYMENT_REQUIRED: 'Payment Required',
+    },
   },
   FORBIDDEN: {
     code: 403,
-    constant: 'FORBIDDEN',
-    reasonPhrase: 'Forbidden',
+
+    messages: {
+      FORBIDDEN: 'Access denied',
+      ACCESS_DENIED: 'Access denied',
+    },
   },
   NOT_FOUND: {
     code: 404,
-    constant: 'NOT_FOUND',
-    reasonPhrase: 'Not Found',
+
+    messages: {
+      NOT_FOUND: 'Resource not found',
+      USER_NOT_FOUND: 'User not found',
+      RECORD_NOT_FOUND: 'Record not found',
+      RESOURCE_NOT_FOUND: 'Resource not found',
+    },
   },
   METHOD_NOT_ALLOWED: {
     code: 405,
     constant: 'METHOD_NOT_ALLOWED',
-    reasonPhrase: 'Method Not Allowed',
+    messages: {
+      METHOD_NOT_ALLOWED: 'Method not allowed',
+    },
   },
   NOT_ACCEPTABLE: {
     code: 406,
-    constant: 'NOT_ACCEPTABLE',
-    reasonPhrase: 'Not Acceptable',
+    messages: {
+      NOT_ACCEPTABLE: 'Not acceptable',
+    },
   },
   PROXY_AUTHENTICATION_REQUIRED: {
     code: 407,
-    constant: 'PROXY_AUTHENTICATION_REQUIRED',
-    reasonPhrase: 'Proxy Authentication Required',
+    messages: {
+      PROXY_AUTHENTICATION_REQUIRED: 'Proxy authentication required',
+    },
   },
   REQUEST_TIMEOUT: {
     code: 408,
-    constant: 'REQUEST_TIMEOUT',
-    reasonPhrase: 'Request Timeout',
+    messages: {
+      REQUEST_TIMEOUT: 'Request timeout',
+    },
   },
   CONFLICT: {
     code: 409,
-    constant: 'CONFLICT',
-    reasonPhrase: 'Conflict',
+    messages: {
+      CONFLICT: 'Conflict',
+    },
   },
   GONE: {
     code: 410,
-    constant: 'GONE',
+    messages: {
+      GONE: 'Gone',
+    },
     reasonPhrase: 'Gone',
   },
   LENGTH_REQUIRED: {
     code: 411,
-    constant: 'LENGTH_REQUIRED',
-    reasonPhrase: 'Length Required',
+    messages: {
+      LENGTH_REQUIRED: 'Length required',
+    },
   },
   PRECONDITION_FAILED: {
     code: 412,
-    constant: 'PRECONDITION_FAILED',
-    reasonPhrase: 'Precondition Failed',
+    messages: {
+      PRECONDITION_FAILED: 'Precondition failed',
+    },
   },
   CONTENT_TOO_LARGE: {
     code: 413,
-    constant: 'CONTENT_TOO_LARGE',
-    reasonPhrase: 'Content Too Large',
+    messages: {
+      CONTENT_TOO_LARGE: 'Content too large',
+    },
   },
   REQUEST_URI_TOO_LONG: {
     code: 414,
-    constant: 'REQUEST_URI_TOO_LONG',
-    reasonPhrase: 'Request-URI Too Long',
+    messages: {
+      REQUEST_URI_TOO_LONG: 'Request URI too long',
+    },
   },
   UNSUPPORTED_MEDIA_TYPE: {
     code: 415,
-    constant: 'UNSUPPORTED_MEDIA_TYPE',
-    reasonPhrase: 'Unsupported Media Type',
+    messages: {
+      UNSUPPORTED_MEDIA_TYPE: 'Unsupported media type',
+    },
   },
   REQUESTED_RANGE_NOT_SATISFIABLE: {
     code: 416,
-    constant: 'REQUESTED_RANGE_NOT_SATISFIABLE',
-    reasonPhrase: 'Requested Range Not Satisfiable',
+    messages: {
+      REQUESTED_RANGE_NOT_SATISFIABLE: 'Requested range not satisfiable',
+    },
   },
   EXPECTATION_FAILED: {
     code: 417,
-    constant: 'EXPECTATION_FAILED',
-    reasonPhrase: 'Expectation Failed',
-  },
-  IM_A_TEAPOT: {
-    code: 418,
-    constant: 'IM_A_TEAPOT',
-    reasonPhrase: "I'm a teapot",
-  },
-  INSUFFICIENT_SPACE_ON_RESOURCE: {
-    code: 419,
-    constant: 'INSUFFICIENT_SPACE_ON_RESOURCE',
-    reasonPhrase: 'Insufficient Space on Resource',
+    messages: {
+      EXPECTATION_FAILED: 'Expectation failed',
+    },
   },
   METHOD_FAILURE: {
     code: 420,
-    constant: 'METHOD_FAILURE',
-    reasonPhrase: 'Method Failure',
+    messages: {
+      METHOD_FAILURE: 'Method failure',
+    },
   },
   MISDIRECTED_REQUEST: {
     code: 421,
-    constant: 'MISDIRECTED_REQUEST',
-    reasonPhrase: 'Misdirected Request',
+    messages: {
+      MISDIRECTED_REQUEST: 'Misdirected request',
+    },
   },
   UNPROCESSABLE_ENTITY: {
     code: 422,
-    constant: 'UNPROCESSABLE_ENTITY',
-    reasonPhrase: 'Unprocessable Entity',
+    messages: {
+      UNPROCESSABLE_ENTITY: 'Unprocessable entity',
+    },
   },
   LOCKED: {
     code: 423,
-    constant: 'LOCKED',
-    reasonPhrase: 'Locked',
+    messages: {
+      LOCKED: 'Locked',
+    },
   },
   FAILED_DEPENDENCY: {
     code: 424,
-    constant: 'FAILED_DEPENDENCY',
-    reasonPhrase: 'Failed Dependency',
+    messages: {
+      FAILED_DEPENDENCY: 'Failed dependency',
+    },
   },
   UPGRADE_REQUIRED: {
     code: 426,
-    constant: 'UPGRADE_REQUIRED',
-    reasonPhrase: 'Upgrade Required',
+    messages: {
+      UPGRADE_REQUIRED: 'Upgrade required',
+    },
   },
   PRECONDITION_REQUIRED: {
     code: 428,
-    constant: 'PRECONDITION_REQUIRED',
-    reasonPhrase: 'Precondition Required',
+    messages: {
+      PRECONDITION_REQUIRED: 'Precondition required',
+    },
   },
   TOO_MANY_REQUESTS: {
     code: 429,
-    constant: 'TOO_MANY_REQUESTS',
-    reasonPhrase: 'Too Many Requests',
+    messages: {
+      TOO_MANY_REQUESTS: 'Too many requests',
+    },
   },
   REQUEST_HEADER_FIELDS_TOO_LARGE: {
     code: 431,
-    constant: 'REQUEST_HEADER_FIELDS_TOO_LARGE',
-    reasonPhrase: 'Request Header Fields Too Large',
+    messages: {
+      REQUEST_HEADER_FIELDS_TOO_LARGE: 'Request header fields too large',
+    },
   },
   UNAVAILABLE_FOR_LEGAL_REASONS: {
     code: 451,
-    constant: 'UNAVAILABLE_FOR_LEGAL_REASONS',
-    reasonPhrase: 'Unavailable For Legal Reasons',
+
+    messages: {
+      UNAVAILABLE_FOR_LEGAL_REASONS: 'Unavailable for legal reasons',
+    },
   },
 
   // 5xx Server Error
   INTERNAL_SERVER_ERROR: {
     code: 500,
-    constant: 'INTERNAL_SERVER_ERROR',
-    reasonPhrase: 'Internal Server Error',
+    messages: {
+      INTERNAL_SERVER_ERROR: 'Internal server error',
+      DATABASE_CONNECTION_ERROR: 'Database connection error',
+      QUERY_ERROR: 'Query execution error',
+      DUPLICATE_ENTRY: 'Duplicate record',
+      CONSTRAINT_VIOLATION: 'Constraint violation',
+    },
   },
   NOT_IMPLEMENTED: {
     code: 501,
-    constant: 'NOT_IMPLEMENTED',
-    reasonPhrase: 'Not Implemented',
+    messages: {
+      NOT_IMPLEMENTED: 'Not implemented',
+    },
   },
   BAD_GATEWAY: {
     code: 502,
-    constant: 'BAD_GATEWAY',
-    reasonPhrase: 'Bad Gateway',
+    messages: {
+      BAD_GATEWAY: 'Bad gateway',
+    },
   },
   SERVICE_UNAVAILABLE: {
     code: 503,
-    constant: 'SERVICE_UNAVAILABLE',
-    reasonPhrase: 'Service Unavailable',
+    messages: {
+      SERVICE_UNAVAILABLE: 'Service unavailable',
+      TIMEOUT: 'Request timeout exceeded',
+    },
   },
   GATEWAY_TIMEOUT: {
     code: 504,
-    constant: 'GATEWAY_TIMEOUT',
-    reasonPhrase: 'Gateway Timeout',
+    messages: {
+      GATEWAY_TIMEOUT: 'Gateway timeout',
+    },
   },
   HTTP_VERSION_NOT_SUPPORTED: {
     code: 505,
-    constant: 'HTTP_VERSION_NOT_SUPPORTED',
-    reasonPhrase: 'HTTP Version Not Supported',
+    messages: {
+      HTTP_VERSION_NOT_SUPPORTED: 'HTTP version not supported',
+    },
   },
   INSUFFICIENT_STORAGE: {
     code: 507,
-    constant: 'INSUFFICIENT_STORAGE',
-    reasonPhrase: 'Insufficient Storage',
+    messages: {
+      INSUFFICIENT_STORAGE: 'Insufficient storage',
+    },
   },
   NETWORK_AUTHENTICATION_REQUIRED: {
     code: 511,
-    constant: 'NETWORK_AUTHENTICATION_REQUIRED',
-    reasonPhrase: 'Network Authentication Required',
+    messages: {
+      NETWORK_AUTHENTICATION_REQUIRED: 'Network authentication required',
+    },
   },
 };
 
-export default HTTP_STATUS;
+export default HttpStatus;

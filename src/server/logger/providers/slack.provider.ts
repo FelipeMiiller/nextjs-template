@@ -57,14 +57,17 @@ export class SlackNotificationProvider {
     });
   }
 
-  // Utilitário local para sanitizar e truncar texto para Slack Block Kit
-  private slackSafe(text: string, max = 2900): string {
+  /**
+   * Utilitário para sanitizar e truncar texto para Slack Block Kit
+   * Processa objetos de erro para extrair informações importantes
+   * @private
+   */
+  private slackSafe(text: string | unknown, max = 2900): string {
     // Função recursiva para buscar propriedades importantes
     function extractImportant(obj: any, prefix = ''): string {
       let out = '';
       if (!obj || typeof obj !== 'object') return '';
       if (obj.message) out += `${prefix}*Mensagem:* ${obj.message}\n`;
-      //if (obj.stack) out += `${prefix}*Stack:*\n\n${obj.stack}\n\n`;
       if (obj.cause) {
         if (typeof obj.cause === 'object') {
           out += extractImportant(obj.cause, prefix + '→ ');
@@ -77,15 +80,23 @@ export class SlackNotificationProvider {
 
     let formatted = '';
     try {
+      // Tenta converter para objeto se for string JSON
       const obj = typeof text === 'string' ? JSON.parse(text) : text;
+
       if (obj && typeof obj === 'object') {
+        // Extrai informações importantes do objeto
         formatted = extractImportant(obj);
-        if (!formatted) formatted = text;
+        // Se não conseguiu extrair nada, converte o objeto para string
+        if (!formatted) {
+          formatted = typeof obj === 'string' ? obj : JSON.stringify(obj);
+        }
       } else {
-        formatted = text;
+        // Garante que o valor seja string
+        formatted = typeof obj === 'string' ? obj : String(obj ?? '');
       }
     } catch {
-      formatted = text;
+      // Em caso de erro, converte o valor original para string
+      formatted = typeof text === 'string' ? text : String(text ?? '');
     }
     // Sanitização e truncamento
     let safe = (formatted || '')
@@ -115,17 +126,17 @@ export class SlackNotificationProvider {
     const { environment, logLevels } = this.config;
 
     // Verifica se o nível de log está configurado para notificação
-    // if (logLevels && !logLevels.includes(level)) {
-    //   return;
-    // }
+    if (logLevels && !logLevels.includes(level)) {
+      return;
+    }
 
     try {
       // Log temporário para debug
-      console.log('Slack metadata:', JSON.stringify(metadata, null, 2));
-      const timestampStr = timestamp.toISOString();
+
+      const timestampStr = timestamp.toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' });
       const title = `[${level.toUpperCase()}] ${context || 'Application'}`;
 
-      // Formata a mensagem principal
+      // Formata a mensagem principal - apenas informações essenciais
       const blocks = [
         {
           type: 'header',
@@ -143,70 +154,51 @@ export class SlackNotificationProvider {
         },
       ] as any[];
 
-      // Bloco resumo com campos principais
-      const summaryFields = [
-        metadata.errorName ? `*Nome do erro:* ${metadata.errorName}` : null,
-        metadata.errorMessage ? `*Mensagem do erro:* ${metadata.errorMessage}` : null,
-        metadata.errorCode ? `*Código do erro:* ${metadata.errorCode}` : null,
-        metadata.statusCode ? `*Status code:* ${metadata.statusCode}` : null,
-        metadata.requestId ? `*RequestId:* ${metadata.requestId}` : null,
-        metadata.userId ? `*UserId:* ${metadata.userId}` : null,
-        metadata.sessionId ? `*SessionId:* ${metadata.sessionId}` : null,
+      // Apenas informações essenciais para entender o erro
+      const essentialFields = [
+        metadata.errorName ? `*Tipo:* ${metadata.errorName}` : null,
+        metadata.errorMessage ? `*Detalhe:* ${metadata.errorMessage}` : null,
+        metadata.errorCode || metadata.code
+          ? `*Código:* ${metadata.errorCode || metadata.code}`
+          : null,
+        metadata.statusCode ? `*Status:* ${metadata.statusCode}` : null,
+        metadata.path ? `*Path:* ${metadata.path}` : null,
+        metadata.method ? `*Método:* ${metadata.method}` : null,
         `*Ambiente:* ${environment}`,
-
         `*Data/Hora:* ${timestampStr}`,
       ].filter(Boolean);
-      if (summaryFields.length > 0) {
+
+      if (essentialFields.length > 0) {
         blocks.push({
           type: 'section',
           text: {
             type: 'mrkdwn',
-            text: summaryFields.join('\n'),
+            text: essentialFields.join('\n'),
           },
         });
       }
 
-      // Metadados completos (detalhes técnicos) - sem rawError, truncando campos grandes
-      const metadataEntries = Object.entries(metadata).filter(
-        ([key]) =>
-          ![
-            'stackTrace',
-            'rawError',
-            'errorName',
-            'errorMessage',
-            'errorCode',
-            'statusCode',
-            'requestId',
-            'userId',
-            'sessionId',
-          ].includes(key),
-      );
-      if (metadataEntries.length > 0) {
-        const metadataText = metadataEntries
-          .map(([key, value]) => {
-            let val: string;
-            if (typeof value === 'string') {
-              val = value;
-            } else if (value === undefined || value === null) {
-              val = String(value);
-            } else {
-              try {
-                val = JSON.stringify(value);
-              } catch {
-                val = '[Unserializable value]';
-              }
-            }
-            if (val.length > 500) val = val.slice(0, 500) + '... [truncated]';
-            return `• *${key}*: \`${val}\``;
-          })
-          .join('\n');
-        blocks.push({
-          type: 'section',
-          text: {
-            type: 'mrkdwn',
-            text: `*Detalhes técnicos*\n${metadataText}\n_Veja detalhes completos no log do servidor._`,
-          },
-        });
+      // Adiciona causa do erro se existir (importante para entender a origem)
+      if (metadata.cause) {
+        let causeText = '';
+        try {
+          causeText =
+            typeof metadata.cause === 'string'
+              ? metadata.cause
+              : JSON.stringify(metadata.cause, null, 2);
+
+          if (causeText.length > 500) {
+            causeText = causeText.slice(0, 500) + '... [truncated]';
+          }
+
+          blocks.push({
+            type: 'section',
+            text: {
+              type: 'mrkdwn',
+              text: `*Causa:*\n\`\`\`\n${causeText}\n\`\`\``,
+            },
+          });
+        } catch {}
       }
 
       // Stack trace destacado (até 4000 caracteres)
@@ -221,7 +213,7 @@ export class SlackNotificationProvider {
         rawTrunc = raw.length > 3900 ? raw.slice(0, 3900) + '\n[truncated]' : raw;
       }
 
-      // 1. Mensagem principal
+      // Envia a mensagem principal com os blocos de informação
       await this.webhook.send({
         text: `${title}: ${message}`,
         blocks,
@@ -229,24 +221,7 @@ export class SlackNotificationProvider {
         username: this.config.username,
       });
 
-      // 2. Stack trace (mensagem separada)
-      if (stackTrunc) {
-        await this.webhook.send({
-          text: `${title}: Stack Trace`,
-          blocks: [
-            {
-              type: 'section',
-              text: {
-                type: 'mrkdwn',
-                text: `*Stack Trace:*\n\`\`\`\n${stackTrunc}\n\`\`\``,
-              },
-            },
-          ],
-          icon_emoji: this.config.iconEmoji,
-          username: this.config.username,
-        });
-      }
-
+      // Envia stack trace em mensagem separada (se existir)
       if (stackTrunc) {
         const stackBlocks = [
           {
@@ -265,13 +240,14 @@ export class SlackNotificationProvider {
         });
       }
 
+      // Envia erro bruto em mensagem separada (se existir)
       if (rawTrunc) {
         const rawBlocks = [
           {
             type: 'section',
             text: {
               type: 'mrkdwn',
-              text: `*Raw Error (truncado):*\n${this.slackSafe(rawTrunc)}`,
+              text: `*Raw Error:*\n\`\`\`\n${this.slackSafe(rawTrunc)}\n\`\`\``,
             },
           },
         ];

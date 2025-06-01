@@ -1,3 +1,4 @@
+import { hrefs } from '@/config/hrefs';
 import { ColorModeSwitcher } from 'src/components/color-mode-switcher';
 import { ReactLogo } from 'src/components/react-logo';
 import { Button } from 'src/components/ui/button';
@@ -5,11 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from 'src/c
 import { getDictionary } from 'src/services/i18n';
 import { Locale } from 'src/types/i18n-types';
 
-export default async function InterfacePage({ params }: { params: { lang: Locale } }) {
-  const { lang } = params;
+export default async function InterfacePage({ params }: { params: Promise<{ lang: Locale }> }) {
+  const { lang } = await params;
   const dictionary = await getDictionary(lang);
   const { common, interface: intl } = dictionary;
-
   return (
     <div className="flex flex-col w-full min-h-screen bg-background">
       {/* Header with theme toggle */}
@@ -32,6 +32,13 @@ export default async function InterfacePage({ params }: { params: { lang: Locale
               <Button variant="outline" className="w-full">
                 {intl.actions.viewDashboard}
               </Button>
+            </div>
+            <div className="flex justify-center">
+              <form action={hrefs.auth.signOut} method="POST" className="w-full">
+                <Button type="submit" variant="destructive" className="mt-2 w-full">
+                  {common.signOut}
+                </Button>
+              </form>
             </div>
             <div className="relative">
               <div className="flex absolute inset-0 items-center">

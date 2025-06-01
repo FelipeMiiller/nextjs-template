@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
-import { env } from '../env';
+import { envPublic } from '../env.public';
 
-const appUrl = env.appUrl;
+const appUrl = envPublic.appUrl;
 
 export const ptMetadata: Metadata = {
   metadataBase: new URL(appUrl),

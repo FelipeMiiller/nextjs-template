@@ -13,31 +13,46 @@ import { routesBackend } from 'src/config/routes';
 import { useEffect } from 'react';
 import { Loader2 } from 'lucide-react';
 import { hrefs } from 'src/config/hrefs';
+import { redirect } from 'next/navigation';
+import HTTP_STATUS from 'src/lib/constants/http-status-codes';
+import { handleValidationZodToast } from '@/components/utils';
 
 interface SignInFormProps extends React.ComponentPropsWithoutRef<'form'> {
   dictionary: AuthTranslations['signIn'];
 }
-
 export function SignInForm({ className, dictionary, ...props }: SignInFormProps) {
   const [state, action, isPending] = useActionState(signIn, undefined);
 
+ 
+
+
   useEffect(() => {
-    if (state) {
-      if (state.error) {
-        // Show field validation errors
-        Object.values(state.error).forEach((errors) => {
-          if (Array.isArray(errors)) {
-            errors.forEach((error) => {
-              toast.error(error);
-            });
-          }
-        });
-      } else if (state.message) {
-        // Show general error message
-        toast.error(state.message);
-      }
+    if (!state) return;
+    switch (state.status) {
+      case HTTP_STATUS.OK.code:
+        redirect(hrefs.interface.index);
+
+      case HTTP_STATUS.NOT_FOUND.code:
+        toast.error(dictionary.actions.userNotFound);
+        redirect(hrefs.auth.signUp);
+
+      case HTTP_STATUS.CONFLICT.code:
+        toast.error(dictionary.actions.userNotFoundPassword);
+        break;
+      case HTTP_STATUS.UNAUTHORIZED.code:
+        toast.error(dictionary.actions.invalidCredentials);
+        break;
     }
-  }, [state]);
+    if (state.message && !state.error) {
+      toast.error(state.message);
+    }
+
+
+    if (state.error) {
+      handleValidationZodToast(state.error);
+      return;
+    }
+  }, [state, dictionary]);
 
   return (
     <form action={action} className={cn('flex flex-col gap-6', className)} {...props}>

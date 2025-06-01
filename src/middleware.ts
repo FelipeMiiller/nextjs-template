@@ -3,12 +3,7 @@ import type { NextRequest } from 'next/server';
 import { match as matchLocale } from '@formatjs/intl-localematcher';
 import Negotiator from 'negotiator';
 import { i18n } from './services/i18n/i18n-config';
-import {
-  deleteSession,
-  getSession,
-  getSessionToken,
-  updateToken,
-} from './server/actions/session.actions';
+import { deleteSession, getSession, refreshToken } from './server/actions/session.actions';
 import { hrefs } from './config/hrefs';
 
 // Lista de extensões de arquivo estático para ignorar
@@ -52,7 +47,7 @@ function getLocale(request: NextRequest): string | undefined {
 
   try {
     return matchLocale(languages, i18n.locales, defaultLocale);
-  } catch (e) {
+  } catch {
     return defaultLocale;
   }
 }
@@ -77,29 +72,26 @@ export async function middleware(request: NextRequest) {
       new URL(`/${locale}${pathname.startsWith('/') ? '' : '/'}${pathname}`, request.url),
     );
   }
-
-  /** 
-  // Primeiro verifica a autenticação para rotas de interface
-  if (pathname.includes('/interface')) {
-    // Verifica se o token de sessão existe
-    const sessionToken = await getSessionToken();
-    if (!sessionToken || !sessionToken.access.refreshToken) {
-      await deleteSession();
-      return NextResponse.redirect(new URL(hrefs.auth.signIn, request.nextUrl.origin));
-    }
-
-    // Verifica se a sessão é válida
-    const session = await getSession();
-    if (!session || !session.access.accessToken) {
-      const updatedSession = await updateToken(sessionToken.access.refreshToken);
-      if (!updatedSession) {
+  try {
+    if (pathname.includes(hrefs.interface.index)) {
+      const session = await getSession();
+      console.log(session);
+      if (!session?.refreshToken) {
         await deleteSession();
         return NextResponse.redirect(new URL(hrefs.auth.signIn, request.nextUrl.origin));
       }
+      if (!session?.accessToken) {
+        const accessToken = await refreshToken(session.refreshToken);
+        if (!accessToken) {
+          await deleteSession();
+          return NextResponse.redirect(new URL(hrefs.auth.signIn, request.nextUrl.origin));
+        }
+      }
     }
-
+  } catch (error) {
+    console.log('Error', error);
+    return NextResponse.redirect(new URL(hrefs.home, request.nextUrl.origin));
   }
-*/
 
   return NextResponse.next();
 }

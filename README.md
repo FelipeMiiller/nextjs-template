@@ -88,7 +88,19 @@ src/
    cp .env.example .env.local
    ```
 
-4. Preencha as variáveis de ambiente no arquivo `.env.local`
+4. Gere uma chave de criptografia segura para sessões:
+   ```bash
+   node -e "console.log(require('crypto').randomBytes(32).toString('base64url'))"
+   ```
+
+5. Adicione a chave gerada ao arquivo `.env.local`:
+   ```env
+   ENCRYPTION_KEY=sua_chave_gerada_aqui
+   ```
+   
+   > **Importante**: A chave deve ter exatamente 32 bytes (256 bits) quando decodificada. O comando acima gera uma chave segura no formato base64url apropriado.
+
+6. Preencha as demais variáveis de ambiente no arquivo `.env.local`
 
 ## 🛠️ Scripts Disponíveis
 

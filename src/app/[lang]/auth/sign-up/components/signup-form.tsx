@@ -13,6 +13,9 @@ import { toast } from 'sonner';
 import { routesBackend } from 'src/config/routes';
 import { Loader2 } from 'lucide-react';
 import { redirect } from 'next/navigation';
+import HTTP_STATUS from 'src/lib/constants/http-status-codes';
+import { handleValidationZodToast } from '@/components/utils';
+
 
 interface SignUpFormProps extends React.ComponentPropsWithoutRef<'form'> {
   dictionary: AuthTranslations['signUp'];
@@ -21,24 +24,20 @@ interface SignUpFormProps extends React.ComponentPropsWithoutRef<'form'> {
 export function SignUpForm({ className, dictionary, ...props }: SignUpFormProps) {
   const [state, action, isPending] = useActionState(signUp, undefined);
 
+
   useEffect(() => {
-    if (state) {
-      if (state.status === 409) {
-        toast.error(dictionary.actions.emailAlreadyExists);
-        redirect(hrefs.auth.signIn);
-      } else if (state.error) {
-        // Show field validation errors
-        Object.values(state.error).forEach((errors) => {
-          if (Array.isArray(errors)) {
-            errors.forEach((error) => {
-              toast.error(error);
-            });
-          }
-        });
-      } else if (state.message) {
-        // Show general error message
-        toast.error(state.message);
-      }
+    if (!state) return;
+
+    if (state.status == HTTP_STATUS.CONFLICT.code) {
+      toast.error(dictionary.actions.emailAlreadyExists);
+      redirect(hrefs.auth.signIn);
+    }
+    if (state.message && !state.error) {
+      toast.error(state.message);
+    }
+
+    if (state.error) {
+      handleValidationZodToast(state.error);
     }
   }, [state, dictionary]);
   return (

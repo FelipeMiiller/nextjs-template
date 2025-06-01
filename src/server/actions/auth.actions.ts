@@ -1,13 +1,13 @@
 'use server';
 import { redirect } from 'next/navigation';
 import { createSession } from './session.actions';
-
 import { SignInFormState, SignUpFormState } from 'src/types/forms';
 import { routesBackend } from 'src/config/routes';
 import { hrefs } from 'src/config/hrefs';
 import { SignInFormSchema, SignUpFormSchema } from 'src/lib/validators/auth.validators';
 import HTTP_STATUS from 'src/lib/constants/http-status-codes';
-import { logError, logInfo } from 'src/server/logger';
+
+import { logError, logWarn } from '../logger';
 
 const { signin, signup } = routesBackend.auth;
 export async function signUp(
@@ -15,9 +15,9 @@ export async function signUp(
   formData: FormData,
 ): Promise<SignUpFormState> {
   const validationFields = SignUpFormSchema.safeParse({
-    name: formData.get('name'),
     email: formData.get('email'),
     password: formData.get('password'),
+    name: formData.get('name'),
     lastname: formData.get('lastname'),
   });
 
@@ -33,12 +33,23 @@ export async function signUp(
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      Nome: validationFields.data.name,
-      Sobrenome: validationFields.data.lastname,
       Email: validationFields.data.email,
       Password: validationFields.data.password,
+      Profile: {
+        Name: validationFields.data.name,
+        LastName: validationFields.data.lastname,
+      },
     }),
   });
+
+  if (!response.ok) {
+    const data = await response.json();
+    console.log('data', data);
+    return {
+      status: response.status,
+      message: data.message,
+    };
+  }
 
   if (response.ok) {
     redirect(hrefs.auth.signIn);
@@ -57,7 +68,6 @@ export async function signIn(
     status: undefined,
     message: undefined,
   };
-  logInfo('signIn', 'Iniciando processo de login');
 
   const validatedFields = SignInFormSchema.safeParse({
     email: formData.get('email'),
@@ -65,17 +75,12 @@ export async function signIn(
   });
 
   if (!validatedFields.success) {
-    console.log('signIn: Validação de campos falhou', validatedFields.error.flatten().fieldErrors);
     return {
       error: validatedFields.error.flatten().fieldErrors,
     };
   }
 
-  console.log('signIn: Campos validados, email:', validatedFields.data.email);
-  console.log('signIn: Enviando requisição para API de login');
-
   try {
-    const fetchStartTime = Date.now();
     const response = await fetch(signin, {
       method: 'POST',
       headers: {
@@ -86,79 +91,37 @@ export async function signIn(
         Password: validatedFields.data.password,
       }),
     });
-    const fetchEndTime = Date.now();
 
-    console.log(
-      `signIn: Resposta da API recebida em ${fetchEndTime - fetchStartTime}ms, status:`,
-      response.status,
-    );
-
-    if (response.ok) {
-      const { data }: { data: { id: string; accessToken: string; refreshToken: string } } =
-        await response.json();
-      console.log('signIn: Resposta da API recebida:', data);
-      await createSession({
-        id: data.id,
-        access: {
-          accessToken: data.accessToken,
-          refreshToken: data.refreshToken,
-        },
-      });
-
-      if (response.ok) {
-        redirect(hrefs.interface.index);
-      }
-    } else {
-      console.log('signIn: Resposta da API não foi bem-sucedida:', response.statusText);
-      result = {
-        message: response.statusText || 'Falha na autenticação',
-        status: response.status,
+    if (!response.ok) {
+      const data = await response.json();
+      const resp = {
+        message: data.message || 'Authentication failed',
+        status: response.status || HTTP_STATUS.INTERNAL_SERVER_ERROR.code,
+        path: response.url,
       };
+      logWarn('signIn', resp.message, resp);
+      result = {
+        message: resp.message,
+        status: resp.status,
+      };
+      return result;
     }
+    const { data } = await response.json();
+
+    await createSession({
+      accessToken: data.accessToken,
+      refreshToken: data.refreshToken,
+    });
+    return {
+      status: HTTP_STATUS.OK.code,
+      message: 'Authentication successful',
+    };
   } catch (error: unknown) {
     logError('signIn', error);
-
     result = {
-      message: error instanceof Error ? error.message : 'Erro durante autenticação',
+      message: 'Error during authentication',
       status: HTTP_STATUS.UNAUTHORIZED.code,
     };
   }
   return result;
 }
-
-export const refreshToken = async (oldRefreshToken: string) => {
-  try {
-    const response = await fetch(routesBackend.auth.refresh, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        refresh: oldRefreshToken,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to refresh token' + response.statusText);
-    }
-
-    const { accessToken, refreshToken } = await response.json();
-    // update session with new tokens
-    const updateRes = await fetch(routesBackend.auth.refresh, {
-      method: 'POST',
-      body: JSON.stringify({
-        accessToken,
-        refreshToken,
-      }),
-    });
-    if (!updateRes.ok) throw new Error('Failed to update the tokens');
-
-    return accessToken;
-  } catch (err) {
-    logError('refreshToken', err);
-    return {
-      status: HTTP_STATUS.UNAUTHORIZED.code,
-      message: 'Failed to refresh token',
-    };
-  }
-};

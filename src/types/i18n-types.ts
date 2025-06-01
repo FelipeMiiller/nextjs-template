@@ -4,6 +4,9 @@ interface CommonTranslations {
   welcome: string;
   increment: string;
   decrement: string;
+  signOut: string;
+  signIn: string;
+  signUp: string;
 }
 
 interface HomeTranslations {
@@ -55,6 +58,9 @@ export interface AuthTranslations {
       noAccount: string;
       signUp: string;
       orContinueWith?: string;
+      userNotFound: string;
+      userNotFoundPassword: string;
+      invalidCredentials: string;
     };
     footer: {
       orContinueWith?: string;

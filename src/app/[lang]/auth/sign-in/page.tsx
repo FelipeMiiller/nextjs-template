@@ -3,6 +3,7 @@ import { ReactLogo } from 'src/components/react-logo';
 import { getDictionary } from 'src/services/i18n';
 import { SignInForm } from './components/signin.form';
 import type { Locale } from 'src/types/i18n-types';
+import { hrefs } from '@/config/hrefs';
 
 export default async function SignInPage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = await params;
@@ -13,7 +14,7 @@ export default async function SignInPage({ params }: { params: Promise<{ lang: L
     <div data-testid="home-page" className="grid min-h-svh lg:grid-cols-2">
       <div className="flex flex-col gap-4 p-6 md:p-10">
         <div className="flex gap-2 justify-center md:justify-start">
-          <a href="#" className="flex gap-2 items-center font-medium">
+          <a href={hrefs.home} className="flex gap-2 items-center font-medium">
             <div className="flex justify-center items-center w-6 h-6 rounded-md bg-primary text-primary-foreground">
               <GalleryVerticalEnd className="size-4" />
             </div>

@@ -1,10 +1,11 @@
 import { ReactLogo } from 'src/components/react-logo';
 import { getDictionary } from 'src/services/i18n/get-dictionary';
-import { ArrowRight, Check, Code, Cpu, Globe, Lock, Palette } from 'lucide-react';
-import { Locale } from 'src/services/i18n/i18n-config';
+
 import { Button } from 'src/components/ui/button';
 import { hrefs } from 'src/config/hrefs';
 import Link from 'next/link';
+import { Locale } from '@/types/i18n-types';
+import { ArrowRight } from 'lucide-react';
 
 export default async function HomePage({ params }: { params: Promise<{ lang: Locale }> }) {
   const { lang } = await params;

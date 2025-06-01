@@ -48,7 +48,13 @@ export default async function RootLayout(props: {
   return (
     <html lang={params.lang} suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <Providers attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
+        <Providers
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+          lang={params.lang}
+        >
           {children}
         </Providers>
       </body>

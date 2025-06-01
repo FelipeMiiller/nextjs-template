@@ -6,6 +6,9 @@ const pt: Dictionary = {
     welcome: 'Bem-vindo!',
     increment: 'Incrementar',
     decrement: 'Decrementar',
+    signOut: 'SignOut',
+    signIn: 'SignIn',
+    signUp: 'SignUp',
   },
   home: {
     title: 'Template Next.js',
@@ -47,6 +50,9 @@ const pt: Dictionary = {
         forgotPassword: 'Esqueceu a senha?',
         noAccount: 'Não tem uma conta?',
         signUp: 'Cadastre-se',
+        userNotFound: 'Usuário não encontrado',
+        userNotFoundPassword: 'Senha não encontrada entre com Google',
+        invalidCredentials: 'Credenciais inválidas',
       },
       footer: {
         orContinueWith: 'Ou continue com',

@@ -6,14 +6,18 @@ import { Toaster } from './ui/sonner';
 import ProviderQuery from 'src/services/reactQuery/provider';
 import VLibras from './VLibras';
 
-export default function Providers({ children, ...props }: ThemeProviderProps) {
+type ExtendedThemeProviderProps = ThemeProviderProps & {
+  lang?: string;
+};
+
+export default function Providers({ children, lang, ...props }: ExtendedThemeProviderProps) {
   return (
     <NextThemesProvider {...props}>
       <ProviderQuery>
         {children}
         <Toaster richColors />
         <TailwindIndicator />
-        <VLibras />
+        {lang === 'pt' && <VLibras />}
       </ProviderQuery>
     </NextThemesProvider>
   );

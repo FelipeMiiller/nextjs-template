@@ -6,13 +6,9 @@
 
 import { format, createLogger, transports, Logger as WinstonLogger } from 'winston';
 import { LogLevel, LogMetadata, LoggerOptions, NotificationService } from './types';
-
-import { formatDateSimple } from 'src/lib/utils/formatDate';
 import { HttpException } from 'src/lib/exceptions/exceptions';
 import { LoggerConfig } from './config';
-
 import { SlackNotificationProvider } from './providers/slack.provider';
-import { ConsoleNotificationProvider } from './providers/console.provider';
 
 /**
  * Serviço de logger aprimorado para aplicações Next.js
@@ -51,10 +47,9 @@ export class Logger {
             format.printf(({ level, message, timestamp, ...meta }) => {
               const { context, stackTrace, statusCode, errorCode, ...restMeta } =
                 meta as LogMetadata;
-
-              const ts =
-                formatDateSimple(timestamp as string, true) ||
-                new Date(timestamp as string).toISOString();
+              const ts = new Date(timestamp as string).toLocaleString('pt-BR', {
+                timeZone: 'America/Sao_Paulo',
+              });
               const contextStr = context ? `[${context}]` : '';
               const idempotencyStr = this.idempotencyKey ? `[${this.idempotencyKey}]` : '';
               const statusStr = statusCode ? `[${statusCode}]` : '';
@@ -121,102 +116,170 @@ export class Logger {
   /**
    * Registra uma mensagem de erro
    */
+  /**
+   * Registra uma mensagem de erro com detalhes completos
+   * @param message Mensagem de erro
+   * @param error Objeto de erro (Error, HttpException ou qualquer outro objeto)
+   * @param metadata Metadados adicionais
+   * @param notify Se deve enviar notificação
+   */
   public error(
     message: string,
-    error?: Error | HttpException,
+    error?: Error | HttpException | unknown,
     metadata: Omit<LogMetadata, 'stackTrace'> = {},
     notify: boolean = true,
   ): void {
-    const statusCode = error instanceof HttpException ? error.status : undefined;
-    const errorCode = error?.constructor.name.replace('Exception', '') || 'UNKNOWN_ERROR';
-    let stackTrace: string | undefined =
-      error && typeof error === 'object' && 'stack' in error
-        ? (error as Error).stack
-        : typeof error === 'string'
-          ? error
-          : undefined;
-    // Novo: tenta pegar de error.cause.stack
-    if (
-      !stackTrace &&
-      error &&
-      typeof error === 'object' &&
-      'cause' in error &&
-      error.cause &&
-      typeof error.cause === 'object' &&
-      'stack' in error.cause
-    ) {
-      stackTrace = (error.cause as any).stack;
-    }
-    // Fallback: tenta extrair stackTrace do rawError (inclusive nested causes)
-    if (!stackTrace && error) {
-      try {
-        const raw = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
-        // Tenta pegar o primeiro stack que encontrar (até nested cause)
-        const match = raw.match(/"stack":\s*"([^"]+)"/);
-        if (match && match[1]) {
-          stackTrace = match[1].replace(/\\n/g, '\n');
-        }
-      } catch {}
-    }
+    // Extrai informações do erro de forma unificada
+    const errorInfo = this.extractErrorInfo(error);
+
+    // Monta objeto de metadados do log
     const meta: LogMetadata = {
       context: this.context,
       idempotency: this.idempotencyKey,
-      statusCode,
-      errorCode,
+      ...errorInfo,
+      // Garante que códigos numéricos sejam convertidos para string
+      errorCode: errorInfo.errorCode !== undefined ? String(errorInfo.errorCode) : undefined,
+      code: errorInfo.code !== undefined ? String(errorInfo.code) : undefined,
+      // Adiciona metadados passados pelo usuário (podem sobrescrever os extraídos)
       ...metadata,
-      errorName: error?.name ?? (typeof error === 'string' ? 'StringError' : undefined),
-      errorMessage: error?.message ?? (typeof error === 'string' ? error : undefined),
-      stackTrace,
-      rawError: error ? JSON.stringify(error, Object.getOwnPropertyNames(error), 2) : undefined,
     };
 
     this.logger.error(message, meta);
-
-    // Envia para o serviço de notificações se estiver habilitado
     if (notify) this.sendNotification(LogLevel.ERROR, message, meta);
   }
 
   /**
+   * Extrai informações detalhadas de um objeto de erro
+   * @private
+   */
+  private extractErrorInfo(error?: unknown): Partial<LogMetadata> {
+    if (!error) return {};
+
+    // Objeto base para armazenar informações extraídas
+    const info: Partial<LogMetadata> = {};
+
+    // Extrai informações com base no tipo de erro
+    if (error instanceof HttpException) {
+      // HttpException já tem todos os campos que precisamos
+      Object.assign(info, {
+        statusCode: error.status,
+        errorCode: error.code || error.constructor.name.replace('Exception', '') || 'UNKNOWN_ERROR',
+        stackTrace: error.stackTrace || error.stack,
+        errorName: error.name,
+        errorMessage: error.message,
+        path: error.path,
+        method: error.method,
+        description: error.description,
+        timestamp: error.timestamp,
+        originalError: error.originalError,
+        cause: error.cause,
+        code: error.code,
+      });
+    } else if (typeof error === 'object') {
+      // Para outros objetos, tenta extrair campos comuns
+      const errObj = error as any;
+      Object.assign(info, {
+        statusCode: errObj.status,
+        errorCode: errObj.code || errObj.constructor?.name || 'UNKNOWN_ERROR',
+        stackTrace: errObj.stack,
+        errorName: errObj.name,
+        errorMessage: errObj.message,
+        path: errObj.path,
+        method: errObj.method,
+        description: errObj.description,
+        timestamp: errObj.timestamp,
+        originalError: errObj.originalError,
+        cause: errObj.cause,
+        code: errObj.code,
+      });
+    } else if (typeof error === 'string') {
+      // Para strings, trata como mensagem de erro simples
+      Object.assign(info, {
+        errorName: 'StringError',
+        errorMessage: error,
+      });
+    }
+
+    // Tenta extrair stack trace se não foi encontrado
+    if (!info.stackTrace && error && typeof error === 'object') {
+      try {
+        const raw = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
+        const match = raw.match(/"stack":\s*"([^"]+)"/);
+        if (match && match[1]) {
+          info.stackTrace = match[1].replace(/\\n/g, '\n');
+        }
+      } catch {}
+    }
+
+    // Serializa o erro original se disponível
+    if (
+      info.originalError &&
+      typeof info.originalError === 'object' &&
+      'toJSON' in info.originalError
+    ) {
+      info.originalError = (info.originalError as any).toJSON();
+    }
+
+    // Adiciona representação raw do erro
+    if (error) {
+      if (typeof error === 'object') {
+        try {
+          info.rawError = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
+        } catch {}
+      } else if (typeof error === 'string') {
+        info.rawError = error;
+      }
+    }
+
+    return info;
+  }
+
+  /**
    * Registra uma mensagem de aviso
+   */
+  /**
+   * Registra uma mensagem de aviso
+   * @param message Mensagem de aviso
+   * @param metadata Metadados adicionais
+   * @param notify Se deve enviar notificação
    */
   public warn(
     message: string,
     metadata: Omit<LogMetadata, 'stackTrace'> = {},
     notify: boolean = true,
   ): void {
-    const meta: LogMetadata = {
-      context: this.context,
-      idempotency: this.idempotencyKey,
-      ...metadata,
-    };
-
+    const meta: LogMetadata = this.prepareMetadata(metadata);
     this.logger.warn(message, meta);
-
-    // Envia para o serviço de notificações se estiver habilitado
     if (notify) this.sendNotification(LogLevel.WARN, message, meta);
   }
 
   /**
    * Registra uma mensagem informativa
    */
+  /**
+   * Registra uma mensagem informativa
+   * @param message Mensagem informativa
+   * @param metadata Metadados adicionais
+   * @param notify Se deve enviar notificação
+   */
   public info(
     message: string,
     metadata: Omit<LogMetadata, 'stackTrace'> = {},
     notify: boolean = true,
   ): void {
-    const meta: LogMetadata = {
-      context: this.context,
-      idempotency: this.idempotencyKey,
-      ...metadata,
-    };
-
+    const meta: LogMetadata = this.prepareMetadata(metadata);
     this.logger.info(message, meta);
-
     if (notify) this.sendNotification(LogLevel.INFO, message, meta);
   }
 
   /**
    * Registra uma mensagem de depuração
+   */
+  /**
+   * Registra uma mensagem de depuração
+   * @param message Mensagem de depuração
+   * @param metadata Metadados adicionais
+   * @param notify Se deve enviar notificação
    */
   public debug(
     message: string,
@@ -225,19 +288,29 @@ export class Logger {
   ): void {
     if (process.env.NODE_ENV === 'production') return;
 
-    const meta: LogMetadata = {
-      context: this.context,
-      idempotency: this.idempotencyKey,
-      ...metadata,
-    };
-
+    const meta: LogMetadata = this.prepareMetadata(metadata);
     this.logger.debug(message, meta);
-
     if (notify) this.sendNotification(LogLevel.DEBUG, message, meta);
   }
 
   /**
    * Envia uma notificação para o serviço de notificações
+   */
+  /**
+   * Prepara metadados padrão para todos os níveis de log
+   * @private
+   */
+  private prepareMetadata(metadata: Partial<LogMetadata> = {}): LogMetadata {
+    return {
+      context: this.context,
+      idempotency: this.idempotencyKey,
+      ...metadata,
+    } as LogMetadata;
+  }
+
+  /**
+   * Envia uma notificação para o serviço configurado
+   * @private
    */
   private async sendNotification(
     level: LogLevel,
@@ -245,44 +318,30 @@ export class Logger {
     metadata: LogMetadata,
   ): Promise<void> {
     try {
-      // Check for Slack webhook URL in environment variables
+      // Verifica se há URL do webhook do Slack nas variáveis de ambiente
       const slackWebhookUrl = process.env.SLACK_WEBHOOK_URL;
-      let provider: NotificationService | null = null;
-      if (slackWebhookUrl) {
-        try {
-          provider = new SlackNotificationProvider(slackWebhookUrl);
-
-          console.log('Slack notification provider initialized successfully');
-        } catch (error) {
-          console.error('Failed to initialize Slack notification provider:', error);
-          // Fall back to console provider if Slack initialization fails
-          provider = new ConsoleNotificationProvider({
-            colors: true,
-            timestamps: true,
-            metadata: true,
-          });
-        }
-      } else if (process.env.NODE_ENV !== 'production') {
-        // Use console provider in development by default
-        provider = new ConsoleNotificationProvider({
-          colors: true,
-          timestamps: true,
-          metadata: true,
-        });
-      }
-
-      if (!provider) {
-        // No provider available, skip notification
+      if (!slackWebhookUrl) {
+        // Sem webhook configurado, não envia notificação
         return;
       }
 
+      // Inicializa o provider do Slack
+      let provider: NotificationService;
+      try {
+        provider = new SlackNotificationProvider(slackWebhookUrl);
+      } catch (error) {
+        console.error('Failed to initialize Slack notification provider:', error);
+        return;
+      }
+
+      // Envia a notificação
       await provider.notify({
         level,
         message,
         context: metadata.context || this.context,
         metadata: {
           ...metadata,
-          stackTrace: undefined,
+          stackTrace: undefined, // Remove stack trace para notificações
         },
         timestamp: new Date(),
       });

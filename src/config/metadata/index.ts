@@ -1,7 +1,7 @@
 import { Metadata } from 'next';
 import { enMetadata } from './en';
 import { ptMetadata } from './pt';
-import { Locale } from 'src/services/i18n/i18n-config';
+import { Locale } from '@/types/i18n-types';
 
 export const metadataByLocale: Record<Locale, Metadata> = {
   en: enMetadata,
